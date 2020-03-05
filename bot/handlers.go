@@ -18,9 +18,9 @@ func (bot *MeetingBot) Default(typeOfMeet string, chat *tgbotapi.Chat) {
 	}
 }
 
-func AddMessage(m *Meeting, tlg string) {
+func AddMessage(m *Meeting, tlg, msg string) {
 	for _, u := range m.Users {
-		if userNamesTlg[chat.UserName] == u.Name {
+		if userNamesTlg[tlg] == u.Name {
 			u.Message = msg
 			return
 		}
@@ -30,17 +30,17 @@ func AddMessage(m *Meeting, tlg string) {
 func (bot *MeetingBot) WillNotBe(typeOfMeet, msg string, chat *tgbotapi.Chat) {
 	if typeOfMeet == "daily_scrum_meeting" {
 		m := bot.FindMin()
-		AddMessage(m, chat.UserName)
+		AddMessage(m, chat.UserName, msg)
 	} else {
 		m := bot.FindMeetByType(typeOfMeet)
 		if m != nil {
 			bot.SendMeet(m, chat.ID)
-			AddMessage(m, chat.UserName)
+			AddMessage(m, chat.UserName, msg)
 		} else {
 			bot.SendMessage("can't find meet", chat.ID)
 		}
 	}
-	bot.NotifyAll()
+	//bot.NotifyAll()
 }
 
 func (bot *MeetingBot) Reshedule(typeOfMeet, interval string, chat *tgbotapi.Chat) {

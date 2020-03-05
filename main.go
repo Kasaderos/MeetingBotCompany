@@ -78,7 +78,7 @@ func main() {
 		} else if strings.HasPrefix(cmd, "reshedule_") { // reshedule_typeMeet_12:00-15:00
 			msg := strings.Split(cmd, "_")
 			meetbot.Reshedule(msg[1], msg[2], update.Message.Chat)
-		} else if cmd == "will_be") {
+		} else if cmd == "will_be" {
 			meetbot.SendMessage("ok", update.Message.Chat.ID)
 		} else {
 			meetbot.SendInfo(update.Message.Chat.ID)

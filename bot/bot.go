@@ -82,6 +82,7 @@ func (b *MeetingBot) CalcForWeek() error {
 	meetings := make([]*Meeting, 0, 7)
 	for i := 0; i < 7; i++ {
 		t := time.Now().AddDate(0, 0, i)
+		fmt.Println(t.String())
 		events := make([]*Event, 0)
 		for _, item := range calendarEvents.Items {
 			start := item.Start.DateTime

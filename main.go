@@ -52,6 +52,10 @@ func main() {
 	port := os.Getenv("PORT")
 	go http.ListenAndServe(":"+port, nil)
 	fmt.Println("start listen :8080")
+	err := meetbot.CalcForWeek()
+	if err != nil {
+		fmt.Errorf(err.Error())
+	}
 	for update := range updates {
 		cmd := StripPrefix(update.Message.Text)
 		if cmd == "daily_scrum_meeting" ||

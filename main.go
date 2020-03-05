@@ -13,7 +13,7 @@ import (
 
 const (
 	BotToken   = "903632383:AAEiLoa4MKYfg5SHBEgkUNwf8AVWrxGlt8c"
-	WebhookURL = "https://altf4-meeting-bot.herokuapp.com"
+	WebhookURL = "https://altf4beta-meeting-bot.herokuapp.com"
 )
 
 const (
@@ -52,15 +52,14 @@ func main() {
 	port := os.Getenv("PORT")
 	go http.ListenAndServe(":"+port, nil)
 	fmt.Println("start listen :8080")
-	for {
-		select {
-		case update := <-updates:
-			cmd := StripPrefix(update.Message.Text)
-			if cmd == "daily" || cmd == "sprint" || cmd == "retrospective" {
-				meetbot.Default(cmd, update.Message.Chat)
-			} else {
-				meetbot.SendInfo(update.Message.Chat.ID)
-			}
+	for update := range updates {
+		cmd := StripPrefix(update.Message.Text)
+		if cmd == "daily_scrum_meeting" ||
+			cmd == "sprint_planing" ||
+			cmd == "retrospective" {
+			meetbot.Default(cmd, update.Message.Chat)
+		} else {
+			meetbot.SendInfo(update.Message.Chat.ID)
 		}
 	}
 }

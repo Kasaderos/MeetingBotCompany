@@ -123,11 +123,9 @@ func (b *MeetingBot) SendInfo(chatID int64) {
 	b.Bot.Send(tgbotapi.NewMessage(
 		chatID,
 		fmt.Sprintf("кнопки:\n%s\n%s\n%s\n%s\n%s",
-			"/daily",
-			"/sprint",
-			"/retrospective",
-			"/notify_on",
-			"/notify_off")))
+			"/daily_scrum_meeting",
+			"/sprint_planing",
+			"/retrospective")))
 }
 
 // всем посылает сообщения

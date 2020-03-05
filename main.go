@@ -13,7 +13,7 @@ import (
 
 const (
 	BotToken   = "903632383:AAEiLoa4MKYfg5SHBEgkUNwf8AVWrxGlt8c"
-	WebhookURL = "https://altf4beta-meeting-bot.herokuapp.com"
+	WebhookURL = "https://altf4beta-meetingbot.herokuapp.com"
 )
 
 const (

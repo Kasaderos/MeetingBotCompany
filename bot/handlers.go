@@ -8,6 +8,14 @@ import (
 	tgbotapi "gopkg.in/telegram-bot-api.v4"
 )
 
+func (bot *MeetingBot) FindMeetByType(t string) *Meeting {
+	for i, v := range bot.Meetings {
+		if v.Type == t {
+			return v
+		}
+	}
+	return nil
+}
 func (bot *MeetingBot) FindMin() *Meeting {
 	min := time.Now().AddDate(10, 0, 0)
 	ind := 0
@@ -62,11 +70,23 @@ func (bot *MeetingBot) SendMeet(m *Meeting, chatID int64) {
 			GetNamesUsers(m.Users))))
 }
 
+func (bot *MeetingBot) SendMessage(msg string, chatID int64) {
+	bot.Bot.Send(tgbotapi.NewMessage(
+		chatID,
+		msg,
+	))
+}
+
 func (bot *MeetingBot) Default(typeOfMeet string, chat *tgbotapi.Chat) {
 	if typeOfMeet == "daily_scrum_meeting" {
 		m := bot.FindMin()
 		bot.SendMeet(m, chat.ID)
-	} else if typeOfMeet == "sprint planing" {
-
+	} else {
+		m := bot.FindMeetByType(typeOfMeet)
+		if m != nil {
+			bot.SendMeet(m, chat.ID)
+		} else {
+			bot.SendMessage("can't find meet", chat.ID)
+		}
 	}
 }

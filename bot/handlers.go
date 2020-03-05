@@ -10,7 +10,7 @@ import (
 
 func (bot *MeetingBot) FindMeetByType(t string) *Meeting {
 	t = strings.ReplaceAll(t, "_", " ")
-	for i, v := range bot.Meetings {
+	for _, v := range bot.Meetings {
 		if v.Type == t {
 			return v
 		}

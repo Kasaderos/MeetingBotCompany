@@ -151,6 +151,9 @@ func (bot *MeetingBot) GetMeetTime(meetType string, events []*Event, t time.Time
 	if err != nil {
 		return time.Time{}, []string{}, err
 	}
+	if len(events) == 0 {
+		return time.Time{}, []string{}, nil
+	}
 	minTime := minMeetTime
 	maxTime := minMeetTime.Add(duration)
 	var meetTime time.Time

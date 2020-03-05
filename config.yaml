@@ -1,32 +1,32 @@
 meetings:
     - 
         type: daily scrum meeting
-        min_start: 11:00 #минимальное время начала
-        max_start: 15:00 #макс время начала
-        duration: 30 #продолжительность
+        min_start: 10:00 #минимальное время начала
+        max_start: 14:00 #макс время начала
+        duration: 10 #продолжительность
         weekday: Any
     - 
         type: sprint planing
         min_start: 11:00
-        max_start: 15:00
+        max_start: 13:00
         duration: 60
         weekday: Monday
     - 
         type: retrospective 
-        min_start: 11:00
-        max_start: 18:00
+        min_start: 17:00
+        max_start: 19:00
         duration: 60
         weekday: Friday
 users:
     -
-        name: Aidar
+        name: Aidar Babanov
         tlg_id: 1111111111 #идентификатор в телеграм
         meetings: daily,sprint #в каких митингах необходимо участие
     - 
-        name: Vladimir
+        name: Vladimir Savostin
         tlg_id: 1111111111
         meetings: sprint
     -
-        name: Berdibek
+        name: Kaldarov Berdibek
         tlg_id: berda0_o
         meetings: daily,sprint,retrospective

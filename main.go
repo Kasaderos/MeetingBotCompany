@@ -56,12 +56,30 @@ func main() {
 	if err != nil {
 		fmt.Errorf(err.Error())
 	}
+	// go func(){
+	// 	for _, chat := range meetbot.Chats {
+	// 		meetbot.Default("daily_scrum_meeting", chat)
+	// 	}
+	// }()
 	for update := range updates {
 		cmd := StripPrefix(update.Message.Text)
 		if cmd == "daily_scrum_meeting" ||
 			cmd == "sprint_planing" ||
 			cmd == "retrospective" {
 			meetbot.Default(cmd, update.Message.Chat)
+			meetbot.SendMessage(fmt.Sprintf("%s\n%s\n%s\n",
+				"/will_not_be_TypeOfMeet_CauseMessage",
+				"/reshedule_TypeOfMeet_hh:mm-hh:mm",
+				"/will_be",
+			), update.Message.Chat.ID)
+		} else if strings.HasPrefix(cmd, "will_not_be_") { //will_not_be_typeMeet_I'm lazy
+			msg := strings.Split(cmd, "_")
+			meetbot.WillNotBe(msg[3], msg[4], update.Message.Chat)
+		} else if strings.HasPrefix(cmd, "reshedule_") { // reshedule_typeMeet_12:00-15:00
+			msg := strings.Split(cmd, "_")
+			meetbot.Reshedule(msg[1], msg[2], update.Message.Chat)
+		} else if cmd == "will_be") {
+			meetbot.SendMessage("ok", update.Message.Chat.ID)
 		} else {
 			meetbot.SendInfo(update.Message.Chat.ID)
 		}

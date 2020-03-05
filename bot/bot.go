@@ -6,6 +6,7 @@ import (
 	"meetingbot/google"
 	"meetingbot/settings"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -243,4 +244,80 @@ func (b *MeetingBot) SendOK(chatID int64) {
 	b.Bot.Send(tgbotapi.NewMessage(
 		chatID,
 		"ok"))
+}
+
+func (bot *MeetingBot) FindMeetByType(t string) *Meeting {
+	t = strings.ReplaceAll(t, "_", " ")
+	for _, v := range bot.Meetings {
+		if v.Type == t {
+			return v
+		}
+	}
+	return nil
+}
+func (bot *MeetingBot) FindMin() *Meeting {
+	min := time.Now().AddDate(10, 0, 0)
+	ind := 0
+	t := time.Time{}
+	for i, v := range bot.Meetings {
+		fmt.Println(v.Type)
+		fmt.Println(v.Date)
+		for _, vv := range v.Users {
+			fmt.Println(vv.Name)
+		}
+		fmt.Println()
+		if v.Date.Before(min) && v.Date != t {
+			min = v.Date
+			ind = i
+		}
+	}
+	return bot.Meetings[ind]
+}
+
+var (
+	userNames = map[string]string{
+		"kberda99@gmail.com":          "Kaldarov Berdibek",
+		"rayskiy.vladimirr@gmail.com": "Vladimir Savostin",
+		"aidar.babanov@nu.edu.kz":     "Aidar Babanov",
+	}
+	userNames = map[string]string{
+		"Kaldarov Berdibek": "berda0_o"
+		"Vladimir Savostin": "111",
+		"Aidar Babanov":     "111",
+	}
+)
+
+func GetUsersFromSlice(names []string) []*User {
+	users := make([]*User, 0, len(names))
+	for _, v := range names {
+		users = append(users, &User{
+			Name:       userNames[v],
+			IsWillCome: true,
+		})
+	}
+	return users
+}
+
+func GetNamesUsers(users []*User) string {
+	names := make([]string, 0, len(users))
+	for _, u := range users {
+		names = append(names, u.Name)
+	}
+	return strings.Join(names, "\n")
+}
+
+func (bot *MeetingBot) SendMeet(m *Meeting, chatID int64) {
+	bot.Bot.Send(tgbotapi.NewMessage(
+		chatID,
+		fmt.Sprintf("%s\n%s\n%s\n",
+			m.Type,
+			m.Date.Format(time.UnixDate),
+			GetNamesUsers(m.Users))))
+}
+
+func (bot *MeetingBot) SendMessage(msg string, chatID int64) {
+	bot.Bot.Send(tgbotapi.NewMessage(
+		chatID,
+		msg,
+	))
 }

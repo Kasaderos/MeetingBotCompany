@@ -18,7 +18,7 @@ func (bot *MeetingBot) FindMin() *Meeting {
 			fmt.Println(vv.Name)
 		}
 		fmt.Println()
-		if v.Date.Before(min) {
+		if v.Date.Before(min) && v.Date != time.Time{} {
 			min = v.Date
 			ind = i
 		}

@@ -68,7 +68,7 @@ func GetMeetType(t time.Time) string {
 	w := t.Weekday()
 	if weekdays[w.String()] == 1 {
 		return "sprint planing"
-	} else if weekdays[w.String()] == 6 {
+	} else if weekdays[w.String()] == 5 {
 		return "retrospective"
 	}
 	return "daily scrum meeting"
@@ -82,7 +82,7 @@ func (b *MeetingBot) CalcForWeek() error {
 	meetings := make([]*Meeting, 0, 7)
 	for i := 0; i < 7; i++ {
 		t := time.Now().AddDate(0, 0, i)
-		fmt.Println(t.String())
+		fmt.Println("time", t.String())
 		events := make([]*Event, 0)
 		for _, item := range calendarEvents.Items {
 			start := item.Start.DateTime

@@ -12,7 +12,11 @@ func (bot *MeetingBot) FindMin() *Meeting {
 	min := time.Now().AddDate(10, 0, 0)
 	ind := 0
 	for i, v := range bot.Meetings {
+		fmt.Println(v.Type)
 		fmt.Println(v.Date)
+		fmt.Println(v.Users)
+		fmt.Println(v.Events)
+		fmt.Println()
 		if v.Date.Before(min) {
 			min = v.Date
 			ind = i

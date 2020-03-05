@@ -122,7 +122,7 @@ func (b *MeetingBot) CalcForWeek() error {
 func (b *MeetingBot) SendInfo(chatID int64) {
 	b.Bot.Send(tgbotapi.NewMessage(
 		chatID,
-		fmt.Sprintf("кнопки:\n%s\n%s\n%s\n%s\n%s",
+		fmt.Sprintf("кнопки:\n%s\n%s\n%s",
 			"/daily_scrum_meeting",
 			"/sprint_planing",
 			"/retrospective")))

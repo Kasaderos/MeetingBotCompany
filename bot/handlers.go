@@ -56,7 +56,7 @@ func (bot *MeetingBot) SendMeet(m *Meeting, chatID int64) {
 }
 
 func (bot *MeetingBot) Default(typeOfMeet string, chat *tgbotapi.Chat) {
-	if typeOfMeet == "daily scrum meeting" {
+	if typeOfMeet == "daily_scrum_meeting" {
 		m := bot.FindMin()
 		bot.SendMeet(m, chat.ID)
 	} else if typeOfMeet == "sprint planing" {

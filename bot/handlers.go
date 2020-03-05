@@ -14,8 +14,9 @@ func (bot *MeetingBot) FindMin() *Meeting {
 	for i, v := range bot.Meetings {
 		fmt.Println(v.Type)
 		fmt.Println(v.Date)
-		fmt.Println(v.Users)
-		fmt.Println(v.Events)
+		for _, vv := range v.Users {
+			fmt.Println(vv.Name)
+		}
 		fmt.Println()
 		if v.Date.Before(min) {
 			min = v.Date
@@ -33,11 +34,11 @@ var (
 	}
 )
 
-func GetUsersFromEvents(events []*Event) []*User {
-	users := make([]*User, 0, len(events))
-	for _, e := range events {
+func GetUsersFromSlice(names []string) []*User {
+	users := make([]*User, 0, len(names))
+	for _, v := range names {
 		users = append(users, &User{
-			Name: userNames[e.Creator],
+			Name: userNames[v],
 		})
 	}
 	return users

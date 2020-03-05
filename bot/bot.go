@@ -102,11 +102,11 @@ func (b *MeetingBot) CalcForWeek() error {
 			}
 		}
 		tMeet := GetMeetType(t)
-		t, err := b.GetMeetTime(tMeet, events, t)
+		t, userNames, err := b.GetMeetTime(tMeet, events, t)
 		if err != nil {
 			return err
 		}
-		users := GetUsersFromEvents(events)
+		users := GetUsersFromSlice(userNames)
 		m := &Meeting{
 			Type:   tMeet,
 			Date:   t,
@@ -144,15 +144,16 @@ func (b *MeetingBot) GetMaxMinTime(t string) (time.Time, time.Time, time.Duratio
 	return time.Time{}, time.Time{}, time.Second, errors.New("GetMaxMinTime")
 }
 
-func (bot *MeetingBot) GetMeetTime(meetType string, events []*Event, t time.Time) (time.Time, error) {
+func (bot *MeetingBot) GetMeetTime(meetType string, events []*Event, t time.Time) (time.Time, []string, error) {
 	maxMembersOfMeet := 0
 	minMeetTime, maxMeetTime, duration, err := bot.GetMaxMinTime(meetType)
 	if err != nil {
-		return time.Time{}, err
+		return time.Time{}, []string{}, err
 	}
 	minTime := minMeetTime
 	maxTime := minMeetTime.Add(duration)
 	var meetTime time.Time
+	membersName := make([]string, 0)
 	for true {
 		minHH, minMM, _ := minTime.Clock()
 		maxHH, maxMM, _ := maxTime.Clock()
@@ -161,11 +162,13 @@ func (bot *MeetingBot) GetMeetTime(meetType string, events []*Event, t time.Time
 			break
 		}
 		count := 0
+		tempMembersName := make([]string, 0)
 		for _, ev := range events {
 			hStart, mStart, _ := ev.Start.Clock()
 			hEnd, mEnd, _ := ev.End.Clock()
 			if ((minHH*60 + minMM) >= (hStart*60.0 + mStart)) && ((maxHH*60 + maxMM) <= (hEnd*60.0 + mEnd)) {
 				count++
+				tempMembersName = append(tempMembersName, ev.Creator)
 			}
 		}
 		if maxMembersOfMeet < count {
@@ -173,19 +176,20 @@ func (bot *MeetingBot) GetMeetTime(meetType string, events []*Event, t time.Time
 			h, m, s := t.Clock()
 			dur1, err := ParseDuration(h, m, s)
 			if err != nil {
-				return time.Time{}, err
+				return time.Time{}, []string{}, err
 			}
 			h, m, s = minTime.Clock()
 			dur2, err := ParseDuration(h, m, s)
 			if err != nil {
-				return time.Time{}, err
+				return time.Time{}, []string{}, err
 			}
 			meetTime = t.Add(-dur1).Add(dur2)
+			membersName = tempMembersName
 		}
 		minTime = minTime.Add(time.Minute)
 		maxTime = maxTime.Add(time.Minute)
 	}
-	return meetTime, nil
+	return meetTime, membersName, nil
 }
 
 // получает даты с календаря

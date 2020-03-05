@@ -275,9 +275,8 @@ var (
 		"aidar.babanov@nu.edu.kz":     "Aidar Babanov",
 	}
 	userNamesTlg = map[string]string{
-		"Kaldarov Berdibek": "berda0_o",
-		"Vladimir Savostin": "111",
-		"Aidar Babanov":     "111",
+		"berda0_o": "Kaldarov Berdibek",
+		"111":      "Vladimir Savostin",
 	}
 )
 

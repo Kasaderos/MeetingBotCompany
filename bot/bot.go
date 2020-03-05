@@ -260,12 +260,6 @@ func (bot *MeetingBot) FindMin() *Meeting {
 	ind := 0
 	t := time.Time{}
 	for i, v := range bot.Meetings {
-		fmt.Println(v.Type)
-		fmt.Println(v.Date)
-		for _, vv := range v.Users {
-			fmt.Println(vv.Name)
-		}
-		fmt.Println()
 		if v.Date.Before(min) && v.Date != t {
 			min = v.Date
 			ind = i
@@ -298,10 +292,12 @@ func GetUsersFromSlice(names []string) []*User {
 	return users
 }
 
-func GetNamesUsers(users []*User) string {
+func GetInfoUsers(users []*User) string {
 	names := make([]string, 0, len(users))
 	for _, u := range users {
-		names = append(names, u.Name)
+		if !u.IsWillCome {
+			names = append(names, u.Name+" "+u.Message)
+		}
 	}
 	return strings.Join(names, "\n")
 }
@@ -312,7 +308,7 @@ func (bot *MeetingBot) SendMeet(m *Meeting, chatID int64) {
 		fmt.Sprintf("%s\n%s\n%s\n",
 			m.Type,
 			m.Date.Format(time.UnixDate),
-			GetNamesUsers(m.Users))))
+			GetInfoUsers(m.Users))))
 }
 
 func (bot *MeetingBot) SendMessage(msg string, chatID int64) {

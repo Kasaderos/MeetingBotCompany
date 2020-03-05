@@ -1,6 +1,8 @@
 package bot
 
 import (
+	"fmt"
+
 	tgbotapi "gopkg.in/telegram-bot-api.v4"
 )
 
@@ -20,6 +22,7 @@ func (bot *MeetingBot) Default(typeOfMeet string, chat *tgbotapi.Chat) {
 
 func AddMessage(m *Meeting, tlg, msg string) {
 	for _, u := range m.Users {
+		fmt.Println(userNamesTlg[tlg], u.Name)
 		if userNamesTlg[tlg] == u.Name {
 			u.IsWillCome = false
 			u.Message = msg

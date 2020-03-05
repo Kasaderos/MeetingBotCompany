@@ -52,7 +52,7 @@ func main() {
 	port := os.Getenv("PORT")
 	go http.ListenAndServe(":"+port, nil)
 	fmt.Println("start listen :8080")
-	err := meetbot.CalcForWeek()
+	err = meetbot.CalcForWeek()
 	if err != nil {
 		fmt.Errorf(err.Error())
 	}

@@ -5,6 +5,7 @@ import (
 )
 
 func (bot *MeetingBot) Default(typeOfMeet string, chat *tgbotapi.Chat) {
+	bot.AddChat(chat)
 	if typeOfMeet == "daily_scrum_meeting" {
 		m := bot.FindMin()
 		bot.SendMeet(m, chat.ID)
@@ -42,7 +43,6 @@ func (bot *MeetingBot) WillNotBe(typeOfMeet, msg string, chat *tgbotapi.Chat) {
 			bot.SendMessage("can't find meet", chat.ID)
 		}
 	}
-	//bot.NotifyAll()
 }
 
 func (bot *MeetingBot) Reshedule(typeOfMeet, interval string, chat *tgbotapi.Chat) {

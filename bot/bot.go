@@ -121,6 +121,12 @@ func (b *MeetingBot) CalcForWeek() error {
 	return nil
 }
 
+func (b *MeetingBot) NotifyAll() {
+	for _, chat := range b.Chats {
+		b.Default("daily_scrum_meeting", chat)
+	}
+}
+
 func (b *MeetingBot) SendInfo(chatID int64) {
 	b.Bot.Send(tgbotapi.NewMessage(
 		chatID,
@@ -218,6 +224,12 @@ func ParseDuration(h, m, s int) (time.Duration, error) {
 }
 func (b *MeetingBot) AddChat(chat *tgbotapi.Chat) {
 	b.cmu.Lock()
+	for _, v := range b.Chats {
+		if v.ID == chat.ID {
+			b.cmu.Unlock()
+			return
+		}
+	}
 	b.Chats = append(b.Chats, chat)
 	b.cmu.Unlock()
 }

@@ -4,6 +4,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/astaxie/beego/logs"
 	tgbotapi "gopkg.in/telegram-bot-api.v4"
 )
 
@@ -33,6 +34,7 @@ func (m *Meeting) AddMessage(tlg, msg string) {
 }
 
 func (bot *MeetingBot) WillNotBe(typeOfMeet, msg string, chat *tgbotapi.Chat) {
+	logs.Debug(typeOfMeet)
 	if typeOfMeet == "daily scrum meeting" {
 		m := bot.FindMin()
 		m.AddMessage(chat.UserName, msg)

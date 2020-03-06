@@ -4,10 +4,10 @@ import (
 	"fmt"
 	mbot "meetingbot/bot"
 	"meetingbot/settings"
+	"meetingbot/timer"
 	"net/http"
 	"os"
 	"strings"
-	"time"
 
 	tgbotapi "gopkg.in/telegram-bot-api.v4"
 )
@@ -89,7 +89,7 @@ func main() {
 				meetbot.SendMessage("ok", update.Message.Chat.ID)
 			} else if cmd == "notify_on" {
 				meetbot.AddChat(update.Message.Chat)
-				go Timer(ch, meetbot.NotifyTime)
+				go timer.SetTimer(ch, meetbot.NotifyTime)
 			} else if strings.HasPrefix(cmd, "set_notify_time_") {
 				msg := strings.Split(cmd, "_")
 				if len(msg) < 4 {
@@ -108,16 +108,8 @@ func main() {
 				}
 			} else {
 				meetbot.NotifyAll()
-				go Timer(ch, meetbot.NotifyTime)
+				go timer.SetTimer(ch, meetbot.NotifyTime)
 			}
 		}
-	}
-}
-
-func Timer(ch chan struct{}, workTime time.Duration) {
-	timer := time.NewTimer(workTime)
-	select {
-	case <-timer.C:
-		ch <- struct{}{}
 	}
 }

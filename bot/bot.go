@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"meetingbot/google"
 	"meetingbot/settings"
+	"meetingbot/timer"
 	"strconv"
 	"strings"
 	"sync"
@@ -337,14 +338,17 @@ func (bot *MeetingBot) SendMessage(msg string, chatID int64) {
 	))
 }
 
-type Alarm struct {
-	Hours   int
-	Minutes int
-	Timeout chan time.Time
-}
-
-func (alarm *Alarm) SetAlarm(Hours, Minutes int) {
-
+func SetAlarm(Hours, Minutes int) {
+	hh, mm, ss := time.Now().Clock()
+	tomorrow := time.Now().AddDate(0, 0, 1).Add(-time.Second * time.Duration(hh*3600+mm*60+ss))
+	ch := make(chan struct{})
+	go timer.SetTimer(ch, time.Now().Sub(tomorrow))
+	for {
+		select {
+		case <-ch:
+			go timer.SetTimer(ch, time.Hour*24)
+		}
+	}
 }
 func (bot *MeetingBot) SetNotifyTime(t string, chatID int64) {
 	clock := strings.Split(t, ":")
@@ -353,8 +357,5 @@ func (bot *MeetingBot) SetNotifyTime(t string, chatID int64) {
 	if err1 != nil || err2 != nil {
 		bot.SendMessage("error: strconv", chatID)
 	}
-	hh, mm, ss := time.Now().Clock()
-	tomorrow := time.Now().AddDate(0, 0, 1).Add(-time.Second * time.Duration(hh*3600+mm*60+ss))
-	tomorrow.Add(time.Hour * time.Duration(h))
-	tomorrow.Add(time.Minute * time.Duration(m))
+	go SetAlarm(h, m)
 }

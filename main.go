@@ -55,7 +55,7 @@ func main() {
 	fmt.Println("start listen :8080")
 	err = meetbot.CalcForWeek()
 	if err != nil {
-		fmt.Errorf(err.Error())
+		panic(fmt.Errorf(err.Error()))
 	}
 	workTime := 5 * time.Second
 	ch := make(chan struct{})

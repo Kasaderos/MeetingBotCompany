@@ -24,7 +24,7 @@ users:
         meetings: daily,sprint #в каких митингах необходимо участие
     - 
         name: Vladimir Savostin
-        tlg_id: 1111111111
+        tlg_id: Savostin_Vladimir 
         meetings: sprint
     -
         name: Kaldarov Berdibek

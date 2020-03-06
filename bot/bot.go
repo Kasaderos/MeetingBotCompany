@@ -134,7 +134,7 @@ func (b *MeetingBot) NotifyAll() {
 func (b *MeetingBot) SendInfo(chatID int64) {
 	b.Bot.Send(tgbotapi.NewMessage(
 		chatID,
-		fmt.Sprintf("%s\n%s\n%s",
+		fmt.Sprintf("%s\n%s\n%s\n%s",
 			"/daily_scrum_meeting",
 			"/sprint_planing",
 			"/retrospective",
@@ -291,8 +291,8 @@ var (
 		"aidar.babanov@nu.edu.kz":     "Aidar Babanov",
 	}
 	userNamesTlg = map[string]string{
-		"berda0_o": "Kaldarov Berdibek",
-		"111":      "Vladimir Savostin",
+		"berda0_o":          "Kaldarov Berdibek",
+		"Savostin_Vladimir": "Vladimir Savostin",
 	}
 )
 

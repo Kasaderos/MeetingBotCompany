@@ -4,7 +4,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/astaxie/beego/logs"
 	tgbotapi "gopkg.in/telegram-bot-api.v4"
 )
 
@@ -52,17 +51,12 @@ func (bot *MeetingBot) WillNotBe(typeOfMeet, msg string, chat *tgbotapi.Chat) {
 func (bot *MeetingBot) Reshedule(typeOfMeet, interval string, chat *tgbotapi.Chat) {
 	if typeOfMeet == "daily scrum meeting" {
 		m := bot.FindMin()
-		logs.Debug("daily FindMin")
 		m = bot.Recalc(typeOfMeet, interval, m, chat.ID)
-		logs.Debug("After Calc")
 		bot.SendMeet(m, chat.ID)
 	} else {
-		logs.Debug("others")
 		m := bot.FindMeetByType(typeOfMeet)
 		if m != nil {
-			logs.Debug("before recalc")
 			m = bot.Recalc(typeOfMeet, interval, m, chat.ID)
-			logs.Debug("after recalc")
 			bot.SendMeet(m, chat.ID)
 		} else {
 			bot.SendMessage("can't find meet", chat.ID)

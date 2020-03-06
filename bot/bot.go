@@ -27,22 +27,24 @@ var (
 )
 
 type MeetingBot struct {
-	Bot      *tgbotapi.BotAPI
-	mu       *sync.Mutex
-	Meetings []*Meeting
-	cmu      *sync.Mutex
-	Chats    []*tgbotapi.Chat
-	boss     int64
-	Config   *settings.Config
+	Bot        *tgbotapi.BotAPI
+	mu         *sync.Mutex
+	Meetings   []*Meeting
+	cmu        *sync.Mutex
+	Chats      []*tgbotapi.Chat
+	boss       int64
+	Config     *settings.Config
+	NotifyTime time.Duration
 }
 
 func NewMeetingBot(bot *tgbotapi.BotAPI) *MeetingBot {
 	return &MeetingBot{
-		Bot:      bot,
-		mu:       &sync.Mutex{},
-		Meetings: make([]*Meeting, 0),
-		Chats:    make([]*tgbotapi.Chat, 0, 10),
-		cmu:      &sync.Mutex{},
+		Bot:        bot,
+		mu:         &sync.Mutex{},
+		Meetings:   make([]*Meeting, 0),
+		Chats:      make([]*tgbotapi.Chat, 0, 10),
+		cmu:        &sync.Mutex{},
+		NotifyTime: time.Second * 5,
 	}
 }
 
@@ -333,4 +335,26 @@ func (bot *MeetingBot) SendMessage(msg string, chatID int64) {
 		chatID,
 		msg,
 	))
+}
+
+type Alarm struct {
+	Hours   int
+	Minutes int
+	Timeout chan time.Time
+}
+
+func (alarm *Alarm) SetAlarm(Hours, Minutes int) {
+
+}
+func (bot *MeetingBot) SetNotifyTime(t string, chatID int64) {
+	clock := strings.Split(t, ":")
+	h, err1 := strconv.Atoi(clock[0])
+	m, err2 := strconv.Atoi(clock[1])
+	if err1 != nil || err2 != nil {
+		bot.SendMessage("error: strconv", chatID)
+	}
+	hh, mm, ss := time.Now().Clock()
+	tomorrow := time.Now().AddDate(0, 0, 1).Add(-time.Second * time.Duration(hh*3600+mm*60+ss))
+	tomorrow.Add(time.Hour * time.Duration(h))
+	tomorrow.Add(time.Minute * time.Duration(m))
 }

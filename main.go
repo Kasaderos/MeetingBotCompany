@@ -57,7 +57,6 @@ func main() {
 	if err != nil {
 		panic(fmt.Errorf(err.Error()))
 	}
-	workTime := 5 * time.Second
 	ch := make(chan struct{})
 	for {
 		select {
@@ -74,15 +73,30 @@ func main() {
 				), update.Message.Chat.ID)
 			} else if strings.HasPrefix(cmd, "will_not_be_") { //will_not_be_typeMeet_I'm lazy
 				msg := strings.Split(cmd, "_")
-				meetbot.WillNotBe(msg[3], msg[4], update.Message.Chat)
+				if len(msg) < 5 {
+					meetbot.SendMessage("invalid message", update.Message.Chat.ID)
+				} else {
+					meetbot.WillNotBe(msg[3], msg[4], update.Message.Chat)
+				}
 			} else if strings.HasPrefix(cmd, "reshedule_") { // reshedule_typeMeet_12:00-15:00
 				msg := strings.Split(cmd, "_")
-				meetbot.Reshedule(msg[1], msg[2], update.Message.Chat)
+				if len(msg) < 3 {
+					meetbot.SendMessage("invalid message", update.Message.Chat.ID)
+				} else {
+					meetbot.Reshedule(msg[1], msg[2], update.Message.Chat)
+				}
 			} else if cmd == "will_be" {
 				meetbot.SendMessage("ok", update.Message.Chat.ID)
 			} else if cmd == "notify_on" {
 				meetbot.AddChat(update.Message.Chat)
-				go Timer(ch, workTime)
+				go Timer(ch, meetbot.NotifyTime)
+			} else if strings.HasPrefix(cmd, "set_notify_time_") {
+				msg := strings.Split(cmd, "_")
+				if len(msg) < 4 {
+					meetbot.SendMessage("invalid message", update.Message.Chat.ID)
+				} else {
+					meetbot.SetNotifyTime(msg[3], update.Message.Chat.ID)
+				}
 			} else {
 				meetbot.SendInfo(update.Message.Chat.ID)
 			}
@@ -94,7 +108,7 @@ func main() {
 				}
 			} else {
 				meetbot.NotifyAll()
-				go Timer(ch, workTime)
+				go Timer(ch, meetbot.NotifyTime)
 			}
 		}
 	}

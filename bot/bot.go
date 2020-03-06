@@ -104,7 +104,11 @@ func (b *MeetingBot) CalcForWeek() error {
 			}
 		}
 		tMeet := GetMeetType(t)
-		t, userNames, err := b.GetMeetTime(tMeet, events, t)
+		minMeetTime, maxMeetTime, duration, err := b.GetMaxMinTime(tMeet)
+		if err != nil {
+			return err
+		}
+		t, userNames, err := b.GetMeetTime(tMeet, events, t, minMeetTime, maxMeetTime, duration)
 		if err != nil {
 			return err
 		}
@@ -133,7 +137,8 @@ func (b *MeetingBot) SendInfo(chatID int64) {
 		fmt.Sprintf("%s\n%s\n%s",
 			"/daily_scrum_meeting",
 			"/sprint_planing",
-			"/retrospective")))
+			"/retrospective",
+			"/notify_on")))
 }
 
 // всем посылает сообщения
@@ -152,12 +157,11 @@ func (b *MeetingBot) GetMaxMinTime(t string) (time.Time, time.Time, time.Duratio
 	return time.Time{}, time.Time{}, time.Second, errors.New("GetMaxMinTime")
 }
 
-func (bot *MeetingBot) GetMeetTime(meetType string, events []*Event, t time.Time) (time.Time, []string, error) {
+func (bot *MeetingBot) GetMeetTime(meetType string, events []*Event, t time.Time,
+	minMeetTime, maxMeetTime time.Time,
+	duration time.Duration) (time.Time, []string, error) {
+
 	maxMembersOfMeet := 0
-	minMeetTime, maxMeetTime, duration, err := bot.GetMaxMinTime(meetType)
-	if err != nil {
-		return time.Time{}, []string{}, err
-	}
 	if len(events) == 0 {
 		return time.Time{}, []string{}, nil
 	}

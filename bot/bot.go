@@ -311,9 +311,9 @@ func GetInfoUsers(users []*User) string {
 	names := make([]string, 0, len(users))
 	for _, u := range users {
 		if !u.IsWillCome {
-			names = append(names, u.Name+" "+u.Message)
+			names = append(names, u.Name+" [NO] "+u.Message)
 		} else {
-			names = append(names, u.Name)
+			names = append(names, u.Name+"[YES]")
 		}
 	}
 	return strings.Join(names, "\n")

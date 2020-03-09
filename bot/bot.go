@@ -342,7 +342,7 @@ func (b *MeetingBot) SetAlarm(Hours, Minutes int, out chan struct{}) {
 	hh, mm, ss := time.Now().Clock()
 	var next time.Time
 	if (hh*3600 + mm*60 + ss) > (Hours*3600 + Minutes*60) {
-		next = time.Now().AddDate(0, 0, 2).
+		next = time.Now().AddDate(0, 0, 1).
 			Add(-time.Second * time.Duration((hh-Hours)*3600+(mm-Minutes)*60-ss))
 	} else {
 		next = time.Now().Add(time.Second * time.Duration((Hours-hh)*3600+(Minutes-mm)*60-ss))
@@ -379,5 +379,5 @@ func (bot *MeetingBot) SetNotifyTime(t string, chatID int64, out chan struct{}) 
 	if err1 != nil || err2 != nil {
 		bot.SendMessage("error: strconv", chatID)
 	}
-	go bot.SetAlarm(h, m, out)
+	bot.SetAlarm(h, m, out)
 }

@@ -45,7 +45,7 @@ func NewMeetingBot(bot *tgbotapi.BotAPI) *MeetingBot {
 		Meetings:   make([]*Meeting, 0),
 		Chats:      make([]*tgbotapi.Chat, 0, 10),
 		cmu:        &sync.Mutex{},
-		NotifyTime: time.Second * 5,
+		NotifyTime: time.Second * 30,
 	}
 }
 

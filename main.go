@@ -115,35 +115,37 @@ func main() {
 			}
 		default:
 			{
-				switch meetbot.GetState(update.Message.Chat.ID) {
-				case 12:
-					meetbot.WillNotBe("daily scrum meeting", text, update.Message.Chat)
-					meetbot.ChangeState(0, update.Message.Chat.ID)
-				case 22:
-					meetbot.WillNotBe("sprint planing", text, update.Message.Chat)
-					meetbot.ChangeState(0, update.Message.Chat.ID)
-				case 32:
-					meetbot.WillNotBe("retrospective", text, update.Message.Chat)
-					meetbot.ChangeState(0, update.Message.Chat.ID)
-				case 13:
-					meetbot.Reshedule("daily scrum meeting", text, update.Message.Chat)
-					meetbot.ChangeState(0, update.Message.Chat.ID)
-				case 23:
-					meetbot.Reshedule("sprint planing", text, update.Message.Chat)
-					meetbot.ChangeState(0, update.Message.Chat.ID)
-				case 33:
-					meetbot.Reshedule("retrospective", text, update.Message.Chat)
-				default:
-					meetbot.SendInfo(update.Message.Chat.ID)
+				if strings.HasPrefix(text, "/set_alarm_") {
+					msg := strings.Split(text, "_")
+					go meetbot.SetNotifyTime(msg[2], update.Message.Chat.ID, out)
+				} else if strings.HasPrefix(text, "/remove_alarm") {
+					out <- struct{}{}
+					meetbot.SendOK(update.Message.Chat.ID)
+				} else {
+					switch meetbot.GetState(update.Message.Chat.ID) {
+					case 12:
+						meetbot.WillNotBe("daily scrum meeting", text, update.Message.Chat)
+						meetbot.ChangeState(0, update.Message.Chat.ID)
+					case 22:
+						meetbot.WillNotBe("sprint planing", text, update.Message.Chat)
+						meetbot.ChangeState(0, update.Message.Chat.ID)
+					case 32:
+						meetbot.WillNotBe("retrospective", text, update.Message.Chat)
+						meetbot.ChangeState(0, update.Message.Chat.ID)
+					case 13:
+						meetbot.Reshedule("daily scrum meeting", text, update.Message.Chat)
+						meetbot.ChangeState(0, update.Message.Chat.ID)
+					case 23:
+						meetbot.Reshedule("sprint planing", text, update.Message.Chat)
+						meetbot.ChangeState(0, update.Message.Chat.ID)
+					case 33:
+						meetbot.Reshedule("retrospective", text, update.Message.Chat)
+					default:
+						meetbot.SendInfo(update.Message.Chat.ID)
+					}
 				}
 			}
 		}
-		if strings.HasPrefix(text, "/set_alarm_") {
-			msg := strings.Split(text, "_")
-			go meetbot.SetNotifyTime(msg[2], update.Message.Chat.ID, out)
-		} else if strings.HasPrefix(text, "/remove_alarm") {
-			out <- struct{}{}
-			meetbot.SendOK(update.Message.Chat.ID)
-		}
+
 	}
 }

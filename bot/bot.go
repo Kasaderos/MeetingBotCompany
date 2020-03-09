@@ -88,10 +88,13 @@ func (b *MeetingBot) CalcForWeek() error {
 	if err != nil {
 		return err
 	}
-	meetings := make([]*Meeting, 0, 8)
-	for i := 0; i < 8; i++ {
-		t := time.Now().AddDate(0, 0, i)
-		fmt.Println("time", t.String())
+	loc, err := time.LoadLocation("Asia/Almaty")
+	if err != nil {
+		return errors.New("local")
+	}
+	meetings := make([]*Meeting, 0, 7)
+	for i := 0; i < 7; i++ {
+		t := time.Now().In(loc).AddDate(0, 0, i)
 		events := make([]*Event, 0)
 		for _, item := range calendarEvents.Items {
 			start := item.Start.DateTime

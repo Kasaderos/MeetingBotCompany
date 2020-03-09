@@ -27,12 +27,17 @@ var (
 	}
 )
 
+type Chat struct {
+	State     int
+	MoveCount int
+}
+
 type MeetingBot struct {
 	Bot        *tgbotapi.BotAPI
-	mu         *sync.Mutex
+	mu         *sync.RWMutex
 	Meetings   []*Meeting
-	cmu        *sync.Mutex
-	Chats      []*tgbotapi.Chat
+	cmu        *sync.RWMutex
+	Chats      map[int64]*Chat
 	boss       int64
 	Config     *settings.Config
 	NotifyTime time.Duration
@@ -41,10 +46,10 @@ type MeetingBot struct {
 func NewMeetingBot(bot *tgbotapi.BotAPI) *MeetingBot {
 	return &MeetingBot{
 		Bot:        bot,
-		mu:         &sync.Mutex{},
+		mu:         &sync.RWMutex{},
 		Meetings:   make([]*Meeting, 0),
-		Chats:      make([]*tgbotapi.Chat, 0, 10),
-		cmu:        &sync.Mutex{},
+		Chats:      make(map[int64]*Chat, 0),
+		cmu:        &sync.RWMutex{},
 		NotifyTime: time.Second * 30,
 	}
 }
@@ -129,11 +134,22 @@ func (b *MeetingBot) CalcForWeek() error {
 }
 
 func (b *MeetingBot) NotifyAll() {
-	for _, chat := range b.Chats {
-		b.Default("daily_scrum_meeting", chat)
+	b.cmu.RLock()
+	for id, _ := range b.Chats {
+		b.Default("daily_scrum_meeting", id)
+		b.SendButtons(id)
 	}
+	b.cmu.RUnlock()
 }
-
+func (b *MeetingBot) SendButtons(chatID int64) {
+	b.Bot.Send(tgbotapi.NewMessage(
+		chatID,
+		fmt.Sprintf("%s\n%s\n%s",
+			"/yes",
+			"/no",
+			"/move",
+		)))
+}
 func (b *MeetingBot) SendInfo(chatID int64) {
 	b.Bot.Send(tgbotapi.NewMessage(
 		chatID,
@@ -141,7 +157,7 @@ func (b *MeetingBot) SendInfo(chatID int64) {
 			"/daily_scrum_meeting",
 			"/sprint_planing",
 			"/retrospective",
-			"/notify_on")))
+		)))
 }
 
 // всем посылает сообщения
@@ -229,34 +245,23 @@ func ParseDuration(h, m, s int) (time.Duration, error) {
 	}
 	return dur, nil
 }
-func (b *MeetingBot) AddChat(chat *tgbotapi.Chat) {
+func (b *MeetingBot) AddChat(chatID int64) {
 	b.cmu.Lock()
-	for _, v := range b.Chats {
-		if v.ID == chat.ID {
-			b.cmu.Unlock()
-			return
-		}
+	b.Chats[chatID] = &Chat{
+		State:     0,
+		MoveCount: 0,
 	}
-	b.Chats = append(b.Chats, chat)
 	b.cmu.Unlock()
 }
 
 func (b *MeetingBot) DeleteChat(chatID int64) error {
 	b.cmu.Lock()
-	for i, v := range b.Chats {
-		if v.ID == chatID {
-			if len(b.Chats) > 1 {
-				b.Chats[i], b.Chats[len(b.Chats)-1] = b.Chats[len(b.Chats)-1], b.Chats[i]
-				b.Chats = b.Chats[:len(b.Chats)-1]
-			} else {
-				b.Chats = make([]*tgbotapi.Chat, 0)
-			}
-			b.cmu.Unlock()
-			return nil
-		}
+	if _, ok := b.Chats[chatID]; !ok {
+		return errors.New("delete chat: not found")
 	}
+	delete(b.Chats, chatID)
 	b.cmu.Unlock()
-	return errors.New("not found chatID")
+	return nil
 }
 
 func (b *MeetingBot) SendOK(chatID int64) {
@@ -365,9 +370,11 @@ LOOP:
 			fmt.Println("occured")
 			err := b.CalcForWeek()
 			if err != nil {
-				for _, chat := range b.Chats {
-					b.SendMessage(err.Error(), chat.ID)
+				b.cmu.RLock()
+				for id, _ := range b.Chats {
+					b.SendMessage(err.Error(), id)
 				}
+				b.cmu.RUnlock()
 			} else {
 				b.NotifyAll()
 			}
@@ -387,4 +394,36 @@ func (bot *MeetingBot) SetNotifyTime(t string, chatID int64, out chan struct{}) 
 		bot.SendMessage("error: strconv", chatID)
 	}
 	bot.SetAlarm(h, m, out)
+}
+
+func (bot *MeetingBot) ChangeState(st int, chatID int64) {
+	bot.cmu.Lock()
+	bot.Chats[chatID].State = st
+	bot.cmu.Unlock()
+}
+
+func (bot *MeetingBot) GetState(chatID int64) int {
+	bot.cmu.RLock()
+	s := bot.Chats[chatID].State
+	bot.cmu.RUnlock()
+	return s
+}
+
+func (bot *MeetingBot) GetMoveCount(chatID int64) int {
+	bot.cmu.RLock()
+	s := bot.Chats[chatID].MoveCount
+	bot.cmu.RUnlock()
+	return s
+}
+
+func (bot *MeetingBot) IncMoveCount(chatID int64) {
+	bot.cmu.Lock()
+	bot.Chats[chatID].MoveCount++
+	bot.cmu.Unlock()
+}
+
+func (bot *MeetingBot) ResetMoveCount(chatID int64) {
+	bot.cmu.Lock()
+	bot.Chats[chatID].MoveCount = 0
+	bot.cmu.Unlock()
 }

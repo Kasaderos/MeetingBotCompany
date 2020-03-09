@@ -16,98 +16,130 @@ const (
 	WebhookURL = "https://altf4beta-meetingbot.herokuapp.com"
 )
 
-const (
-	SPRINT_PLANING = iota
-	DAILY_SCRUM_MEETING
-	RETROSPECTIVE
-)
-
-func StripPrefix(s string) string {
-	if strings.HasPrefix(s, "/") {
-		return string([]byte(s)[1:])
-	}
-	return ""
-}
-
 func main() {
+
 	tgbot, err := tgbotapi.NewBotAPI(BotToken)
 	if err != nil {
 		panic(err)
 	}
+
 	meetbot := mbot.NewMeetingBot(tgbot)
-	// bot.Debug = true
 	fmt.Printf("Authorized on account %s\n", meetbot.Bot.Self.UserName)
 
 	_, err = meetbot.Bot.SetWebhook(tgbotapi.NewWebhook(WebhookURL))
 	if err != nil {
 		panic(err)
 	}
+
 	cfg, err := settings.GetConfig()
 	if err != nil {
 		panic(err)
 	}
+
 	meetbot.Config = cfg
 	updates := meetbot.Bot.ListenForWebhook("/")
 
 	port := os.Getenv("PORT")
 	go http.ListenAndServe(":"+port, nil)
+
 	fmt.Println("start listen :8080")
+
 	err = meetbot.CalcForWeek()
 	if err != nil {
 		panic(fmt.Errorf(err.Error()))
 	}
-	// keyboard := tgbotapi.NewKeyboardButtonRow(
-	// tgbotapi.NewKeyboardButton(`/easy`),
-	// tgbotapi.NewKeyboardButton(`/hard`))
-	out := make(chan struct{})
-	for {
-		select {
-		case update := <-updates:
-			cmd := StripPrefix(update.Message.Text)
 
-			if cmd == "daily_scrum_meeting" ||
-				cmd == "sprint_planing" ||
-				cmd == "retrospective" {
-				meetbot.Default(cmd, update.Message.Chat)
-				meetbot.SendMessage(fmt.Sprintf("%s\n%s\n%s\n",
-					"/will_not_be_TypeOfMeet_CauseMessage",
-					"/reshedule_TypeOfMeet_hh:mm-hh:mm",
-					"/will_be",
-				), update.Message.Chat.ID)
-				// } else if strings.HasPrefix(cmd, "ss") {
-				// 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, `SeeYa!`)
-				// 	msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(keyboard)
-			} else if strings.HasPrefix(cmd, "will_not_be_") { //will_not_be_typeMeet_I'm lazy
-				msg := strings.Split(cmd, "_")
-				if len(msg) < 5 {
-					meetbot.SendMessage("invalid message", update.Message.Chat.ID)
-				} else {
-					meetbot.WillNotBe(msg[3], msg[4], update.Message.Chat)
-				}
-			} else if strings.HasPrefix(cmd, "reshedule_") { // reshedule_typeMeet_12:00-15:00
-				msg := strings.Split(cmd, "_")
-				if len(msg) < 3 {
-					meetbot.SendMessage("invalid message", update.Message.Chat.ID)
-				} else {
-					meetbot.Reshedule(msg[1], msg[2], update.Message.Chat)
-				}
-			} else if cmd == "will_be" {
-				meetbot.SendOK(update.Message.Chat.ID)
-			} else if cmd == "notify_on" {
-				meetbot.AddChat(update.Message.Chat)
-				meetbot.SendOK(update.Message.Chat.ID)
-			} else if cmd == "notify_off" {
-				meetbot.DeleteChat(update.Message.Chat.ID)
-				meetbot.SendOK(update.Message.Chat.ID)
-			} else if strings.HasPrefix(cmd, "set_alarm_") {
-				msg := strings.Split(cmd, "_")
-				go meetbot.SetNotifyTime(msg[2], update.Message.Chat.ID, out)
-			} else if strings.HasPrefix(cmd, "remove_alarm") {
-				out <- struct{}{}
-				meetbot.SendOK(update.Message.Chat.ID)
-			} else {
-				meetbot.SendInfo(update.Message.Chat.ID)
+	out := make(chan struct{})
+
+	for update := range updates {
+		text := update.Message.Text
+		switch text {
+		case "/start":
+			{
+				meetbot.AddChat(update.Message.Chat.ID)
 			}
+		case "/daily_scrum_meeting":
+			{
+				meetbot.MeetHandler(update.Message)
+				meetbot.ChangeState(1, update.Message.Chat.ID)
+				meetbot.SendButtons(update.Message.Chat.ID)
+				meetbot.ResetMoveCount(update.Message.Chat.ID)
+			}
+		case "/sprint_planing":
+			{
+				meetbot.MeetHandler(update.Message)
+				meetbot.ChangeState(2, update.Message.Chat.ID)
+				meetbot.SendButtons(update.Message.Chat.ID)
+				meetbot.ResetMoveCount(update.Message.Chat.ID)
+			}
+		case "/retrospective":
+			{
+				meetbot.MeetHandler(update.Message)
+				meetbot.ChangeState(3, update.Message.Chat.ID)
+				meetbot.SendButtons(update.Message.Chat.ID)
+				meetbot.ResetMoveCount(update.Message.Chat.ID)
+			}
+		case "/no":
+			{
+				meetbot.SendMessage("cause message:", update.Message.Chat.ID)
+				switch meetbot.GetState(update.Message.Chat.ID) {
+				case 1:
+					meetbot.ChangeState(12, update.Message.Chat.ID)
+				case 2:
+					meetbot.ChangeState(22, update.Message.Chat.ID)
+				case 3:
+					meetbot.ChangeState(32, update.Message.Chat.ID)
+				}
+				meetbot.ResetMoveCount(update.Message.Chat.ID)
+			}
+		case "/yes":
+			{
+				meetbot.SendOK(update.Message.Chat.ID)
+				meetbot.ChangeState(0, update.Message.Chat.ID)
+				meetbot.ResetMoveCount(update.Message.Chat.ID)
+			}
+		case "/move":
+			{
+				if meetbot.GetMoveCount(update.Message.Chat.ID) == 2 {
+					meetbot.SendMessage("move count == 2", update.Message.Chat.ID)
+				}
+				meetbot.SendMessage("hh:mm-hh:mm, example:02:01-03:01", update.Message.Chat.ID)
+				switch meetbot.GetState(update.Message.Chat.ID) {
+				case 1:
+					meetbot.ChangeState(13, update.Message.Chat.ID)
+				case 2:
+					meetbot.ChangeState(23, update.Message.Chat.ID)
+				case 3:
+					meetbot.ChangeState(33, update.Message.Chat.ID)
+				}
+				meetbot.IncMoveCount(update.Message.Chat.ID)
+			}
+		default:
+			{
+				switch meetbot.GetState(update.Message.Chat.ID) {
+				case 12:
+					meetbot.WillNotBe("daily scrum meeting", text, update.Message.Chat)
+				case 22:
+					meetbot.WillNotBe("sprint planing", text, update.Message.Chat)
+				case 32:
+					meetbot.WillNotBe("retrospective", text, update.Message.Chat)
+				case 13:
+					meetbot.Reshedule("daily scrum meeting", text, update.Message.Chat)
+				case 23:
+					meetbot.Reshedule("sprint planing", text, update.Message.Chat)
+				case 33:
+					meetbot.Reshedule("retrospective", text, update.Message.Chat)
+				default:
+					meetbot.SendInfo(update.Message.Chat.ID)
+				}
+			}
+		}
+		if strings.HasPrefix(text, "/set_alarm_") {
+			msg := strings.Split(text, "_")
+			go meetbot.SetNotifyTime(msg[2], update.Message.Chat.ID, out)
+		} else if strings.HasPrefix(text, "/remove_alarm") {
+			out <- struct{}{}
+			meetbot.SendOK(update.Message.Chat.ID)
 		}
 	}
 }

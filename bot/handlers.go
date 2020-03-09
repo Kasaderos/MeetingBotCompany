@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -8,17 +9,33 @@ import (
 	tgbotapi "gopkg.in/telegram-bot-api.v4"
 )
 
-func (bot *MeetingBot) Default(typeOfMeet string, chat *tgbotapi.Chat) {
-	bot.AddChat(chat)
+func StripPrefix(s string) string {
+	if strings.HasPrefix(s, "/") {
+		return string([]byte(s)[1:])
+	}
+	return ""
+}
+
+func (bot *MeetingBot) MeetHandler(msg *tgbotapi.Message) {
+	cmd := StripPrefix(msg.Text)
+	bot.Default(cmd, msg.Chat.ID)
+	bot.SendMessage(fmt.Sprintf("%s\n%s\n%s\n",
+		"/no",   //_type_message",
+		"/move", //_type_hh:mm-hh:mm",
+		"/yes",
+	), msg.Chat.ID)
+}
+func (bot *MeetingBot) Default(typeOfMeet string, chatID int64) {
+	bot.AddChat(chatID)
 	if typeOfMeet == "daily_scrum_meeting" {
 		m := bot.FindMin()
-		bot.SendMeet(m, chat.ID)
+		bot.SendMeet(m, chatID)
 	} else {
 		m := bot.FindMeetByType(typeOfMeet)
 		if m != nil {
-			bot.SendMeet(m, chat.ID)
+			bot.SendMeet(m, chatID)
 		} else {
-			bot.SendMessage("can't find meet", chat.ID)
+			bot.SendMessage("can't find meet", chatID)
 		}
 	}
 }

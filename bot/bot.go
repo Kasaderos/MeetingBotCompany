@@ -339,7 +339,11 @@ func (bot *MeetingBot) SendMessage(msg string, chatID int64) {
 }
 
 func (b *MeetingBot) SetAlarm(Hours, Minutes int, out chan struct{}) {
-	t := time.Now()
+	loc, err := time.LoadLocation("Asia/Almaty")
+	if err != nil {
+		return
+	}
+	t := time.Now().In(loc)
 	fmt.Println(t.String())
 	hh, mm, ss := t.Clock()
 	var next time.Time

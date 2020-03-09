@@ -96,6 +96,9 @@ func main() {
 			} else if cmd == "notify_on" {
 				meetbot.AddChat(update.Message.Chat)
 				meetbot.SendOK(update.Message.Chat.ID)
+			} else if cmd == "notify_off" {
+				meetbot.DeleteChat(update.Message.Chat.ID)
+				meetbot.SendOK(update.Message.Chat.ID)
 			} else if strings.HasPrefix(cmd, "set_alarm_") {
 				msg := strings.Split(cmd, "_")
 				go meetbot.SetNotifyTime(msg[2], update.Message.Chat.ID, out)

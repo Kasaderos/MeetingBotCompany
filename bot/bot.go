@@ -348,10 +348,10 @@ func (b *MeetingBot) SetAlarm(Hours, Minutes int, out chan struct{}) {
 	hh, mm, ss := t.Clock()
 	var next time.Time
 	if (hh*3600 + mm*60 + ss) > (Hours*3600 + Minutes*60) {
-		next = time.Now().AddDate(0, 0, 1).
+		next = t.AddDate(0, 0, 1).
 			Add(-time.Second * time.Duration((hh-Hours)*3600+(mm-Minutes)*60-ss))
 	} else {
-		next = time.Now().Add(time.Second * time.Duration((Hours-hh)*3600+(Minutes-mm)*60-ss))
+		next = t.Add(time.Second * time.Duration((Hours-hh)*3600+(Minutes-mm)*60-ss))
 	}
 	ch := make(chan struct{})
 	fmt.Println(next.String())

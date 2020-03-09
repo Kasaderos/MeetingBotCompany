@@ -280,8 +280,10 @@ func (b *MeetingBot) SendOK(chatID int64) {
 }
 
 func (bot *MeetingBot) FindMeetByType(t string) *Meeting {
+	fmt.Println(t)
 	t = strings.ReplaceAll(t, "_", " ")
 	for _, v := range bot.Meetings {
+		fmt.Println(v.Type)
 		if v.Type == t {
 			return v
 		}

@@ -339,7 +339,8 @@ func (bot *MeetingBot) SendMessage(msg string, chatID int64) {
 }
 
 func (b *MeetingBot) SetAlarm(Hours, Minutes int, out chan struct{}) {
-	hh, mm, ss := time.Now().Clock()
+	t := time.Now()
+	hh, mm, ss := t.Clock()
 	var next time.Time
 	if (hh*3600 + mm*60 + ss) > (Hours*3600 + Minutes*60) {
 		next = time.Now().AddDate(0, 0, 1).
@@ -347,10 +348,8 @@ func (b *MeetingBot) SetAlarm(Hours, Minutes int, out chan struct{}) {
 	} else {
 		next = time.Now().Add(time.Second * time.Duration((Hours-hh)*3600+(Minutes-mm)*60-ss))
 	}
-	fmt.Println(next.String())
 	ch := make(chan struct{})
-	fmt.Println(time.Now().Sub(next).Seconds())
-	go timer.SetTimer(ch, time.Now().Sub(next))
+	go timer.SetTimer(ch, next.Sub(t))
 LOOP:
 	for {
 		select {

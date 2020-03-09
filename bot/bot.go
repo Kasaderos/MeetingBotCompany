@@ -354,7 +354,6 @@ LOOP:
 	for {
 		select {
 		case <-ch:
-			out <- struct{}{}
 			fmt.Println("occured")
 			err := b.CalcForWeek()
 			if err != nil {

@@ -384,7 +384,9 @@ LOOP:
 		case <-ch:
 			fmt.Println("occured")
 			err := b.CalcForWeek()
+			fmt.Println("occured2")
 			if err != nil {
+				fmt.Println("occured3")
 				b.cmu.RLock()
 				for id, _ := range b.Chats {
 					b.SendMessage(err.Error(), id)

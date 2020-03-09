@@ -129,7 +129,9 @@ func (b *MeetingBot) CalcForWeek() error {
 		}
 		meetings = append(meetings, m)
 	}
+	b.mu.Lock()
 	b.Meetings = meetings
+	b.mu.Unlock()
 	return nil
 }
 
@@ -280,11 +282,10 @@ func (b *MeetingBot) SendOK(chatID int64) {
 }
 
 func (bot *MeetingBot) FindMeetByType(t string) *Meeting {
-	fmt.Println(t)
 	t = strings.ReplaceAll(t, "_", " ")
 	for _, v := range bot.Meetings {
-		fmt.Println(v.Type)
 		if v.Type == t {
+			fmt.Println(v.Date.String(), v.Type)
 			return v
 		}
 	}
@@ -386,9 +387,8 @@ LOOP:
 					b.SendMessage(err.Error(), id)
 				}
 				b.cmu.RUnlock()
-			} else {
-				b.NotifyAll()
 			}
+			b.NotifyAll()
 			go timer.SetTimer(ch, time.Hour*24)
 		case <-out:
 			fmt.Println("removed")

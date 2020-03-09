@@ -379,5 +379,5 @@ func (bot *MeetingBot) SetNotifyTime(t string, chatID int64, out chan struct{}) 
 	if err1 != nil || err2 != nil {
 		bot.SendMessage("error: strconv", chatID)
 	}
-	go SetAlarm(h, m, out)
+	go bot.SetAlarm(h, m, out)
 }

@@ -1,7 +1,7 @@
 meetings:
     - 
         type: daily scrum meeting
-        min_start: 10:00 #минимальное время начала
+        min_start: 11:00 #минимальное время начала
         max_start: 14:00 #макс время начала
         duration: 10 #продолжительность
         weekday: Any

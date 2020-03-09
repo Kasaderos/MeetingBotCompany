@@ -349,6 +349,7 @@ func (b *MeetingBot) SetAlarm(Hours, Minutes int, out chan struct{}) {
 	}
 	fmt.Println(next.String())
 	ch := make(chan struct{})
+	fmt.Println(time.Now().Sub(next).Seconds())
 	go timer.SetTimer(ch, time.Now().Sub(next))
 LOOP:
 	for {

@@ -89,7 +89,6 @@ func main() {
 			} else if cmd == "notify_on" {
 				meetbot.AddChat(update.Message.Chat)
 			} else if strings.HasPrefix(cmd, "set_alarm_") {
-				out <- struct{}{}
 				msg := strings.Split(cmd, "_")
 				meetbot.SetNotifyTime(msg[2], update.Message.Chat.ID, out)
 			} else if strings.HasPrefix(cmd, "remove_alarm") {

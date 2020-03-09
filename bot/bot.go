@@ -153,7 +153,7 @@ func (b *MeetingBot) SendButtons(chatID int64) {
 func (b *MeetingBot) SendInfo(chatID int64) {
 	b.Bot.Send(tgbotapi.NewMessage(
 		chatID,
-		fmt.Sprintf("%s\n%s\n%s\n%s",
+		fmt.Sprintf("%s\n%s\n%s",
 			"/daily_scrum_meeting",
 			"/sprint_planing",
 			"/retrospective",

@@ -62,21 +62,18 @@ func main() {
 			{
 				meetbot.MeetHandler(update.Message)
 				meetbot.ChangeState(1, update.Message.Chat.ID)
-				meetbot.SendButtons(update.Message.Chat.ID)
 				meetbot.ResetMoveCount(update.Message.Chat.ID)
 			}
 		case "/sprint_planing":
 			{
 				meetbot.MeetHandler(update.Message)
 				meetbot.ChangeState(2, update.Message.Chat.ID)
-				meetbot.SendButtons(update.Message.Chat.ID)
 				meetbot.ResetMoveCount(update.Message.Chat.ID)
 			}
 		case "/retrospective":
 			{
 				meetbot.MeetHandler(update.Message)
 				meetbot.ChangeState(3, update.Message.Chat.ID)
-				meetbot.SendButtons(update.Message.Chat.ID)
 				meetbot.ResetMoveCount(update.Message.Chat.ID)
 			}
 		case "/no":
@@ -91,6 +88,7 @@ func main() {
 					meetbot.ChangeState(32, update.Message.Chat.ID)
 				}
 				meetbot.ResetMoveCount(update.Message.Chat.ID)
+				meetbot.ChangeState(0, update.Message.Chat.ID)
 			}
 		case "/yes":
 			{

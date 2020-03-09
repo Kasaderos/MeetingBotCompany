@@ -1,7 +1,6 @@
 package bot
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -19,11 +18,7 @@ func StripPrefix(s string) string {
 func (bot *MeetingBot) MeetHandler(msg *tgbotapi.Message) {
 	cmd := StripPrefix(msg.Text)
 	bot.Default(cmd, msg.Chat.ID)
-	bot.SendMessage(fmt.Sprintf("%s\n%s\n%s\n",
-		"/no",   //_type_message",
-		"/move", //_type_hh:mm-hh:mm",
-		"/yes",
-	), msg.Chat.ID)
+	bot.SendButtons(msg.Chat.ID)
 }
 func (bot *MeetingBot) Default(typeOfMeet string, chatID int64) {
 	bot.AddChat(chatID)

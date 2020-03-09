@@ -88,8 +88,8 @@ func (b *MeetingBot) CalcForWeek() error {
 	if err != nil {
 		return err
 	}
-	meetings := make([]*Meeting, 0, 7)
-	for i := 0; i < 7; i++ {
+	meetings := make([]*Meeting, 0, 8)
+	for i := 0; i < 8; i++ {
 		t := time.Now().AddDate(0, 0, i)
 		fmt.Println("time", t.String())
 		events := make([]*Event, 0)
@@ -321,7 +321,7 @@ func GetInfoUsers(users []*User) string {
 		if !u.IsWillCome {
 			names = append(names, u.Name+" [NO] "+u.Message)
 		} else {
-			names = append(names, u.Name+"[YES]")
+			names = append(names, u.Name+" [YES] ")
 		}
 	}
 	return strings.Join(names, "\n")

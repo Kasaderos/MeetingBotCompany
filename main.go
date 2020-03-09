@@ -88,7 +88,6 @@ func main() {
 					meetbot.ChangeState(32, update.Message.Chat.ID)
 				}
 				meetbot.ResetMoveCount(update.Message.Chat.ID)
-				meetbot.ChangeState(0, update.Message.Chat.ID)
 			}
 		case "/yes":
 			{
@@ -100,6 +99,8 @@ func main() {
 			{
 				if meetbot.GetMoveCount(update.Message.Chat.ID) == 2 {
 					meetbot.SendMessage("move count == 2", update.Message.Chat.ID)
+					meetbot.ChangeState(0, update.Message.Chat.ID)
+					continue
 				}
 				meetbot.SendMessage("hh:mm-hh:mm, example:02:01-03:01", update.Message.Chat.ID)
 				switch meetbot.GetState(update.Message.Chat.ID) {

@@ -338,24 +338,35 @@ func (bot *MeetingBot) SendMessage(msg string, chatID int64) {
 	))
 }
 
-func SetAlarm(Hours, Minutes int) {
+func SetAlarm(Hours, Minutes int, out chan struct{}) {
 	hh, mm, ss := time.Now().Clock()
-	tomorrow := time.Now().AddDate(0, 0, 1).Add(-time.Second * time.Duration(hh*3600+mm*60+ss))
+	var next time.Time
+	if (hh*60 + mm) > (Hours*60 + Minutes) {
+		next = time.Now().AddDate(0, 0, 1).
+			Add(-time.Second * time.Duration((hh-Hours)*3600+(mm-Minutes)*60-ss))
+	} else {
+		next = time.Now().Add(time.Second * time.Duration((Hours-hh)*3600+(Minutes-mm)*60-ss))
+	}
 	ch := make(chan struct{})
-	go timer.SetTimer(ch, time.Now().Sub(tomorrow))
+	go timer.SetTimer(ch, time.Now().Sub(next))
+LOOP:
 	for {
 		select {
 		case <-ch:
+			out <- struct{}{}
 			go timer.SetTimer(ch, time.Hour*24)
+		case <-out:
+			break LOOP
 		}
 	}
 }
-func (bot *MeetingBot) SetNotifyTime(t string, chatID int64) {
+
+func (bot *MeetingBot) SetNotifyTime(t string, chatID int64, out chan struct{}) {
 	clock := strings.Split(t, ":")
 	h, err1 := strconv.Atoi(clock[0])
 	m, err2 := strconv.Atoi(clock[1])
 	if err1 != nil || err2 != nil {
 		bot.SendMessage("error: strconv", chatID)
 	}
-	go SetAlarm(h, m)
+	go SetAlarm(h, m, out)
 }

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	mbot "meetingbot/bot"
 	"meetingbot/settings"
-	"meetingbot/timer"
 	"net/http"
 	"os"
 	"strings"
@@ -57,7 +56,7 @@ func main() {
 	if err != nil {
 		panic(fmt.Errorf(err.Error()))
 	}
-	ch := make(chan struct{})
+	out := make(chan struct{})
 	for {
 		select {
 		case update := <-updates:
@@ -86,21 +85,26 @@ func main() {
 					meetbot.Reshedule(msg[1], msg[2], update.Message.Chat)
 				}
 			} else if cmd == "will_be" {
-				meetbot.SendMessage("ok", update.Message.Chat.ID)
+				meetbot.SendOK(update.Message.Chat.ID)
 			} else if cmd == "notify_on" {
 				meetbot.AddChat(update.Message.Chat)
-				go timer.SetTimer(ch, meetbot.NotifyTime)
+			} else if strings.HasPrefix(cmd, "set_alarm_") {
+				msg := strings.Split(cmd, "_")
+				meetbot.SetNotifyTime(msg[2], update.Message.Chat.ID, out)
 			} else if strings.HasPrefix(cmd, "set_notify_time_") {
 				msg := strings.Split(cmd, "_")
 				if len(msg) < 4 {
 					meetbot.SendMessage("invalid message", update.Message.Chat.ID)
 				} else {
-					meetbot.SetNotifyTime(msg[3], update.Message.Chat.ID)
+					meetbot.SetNotifyTime(msg[3], update.Message.Chat.ID, out)
 				}
+			} else if strings.HasPrefix(cmd, "remove_notify_time") {
+				out <- struct{}{}
+				meetbot.SendOK(update.Message.Chat.ID)
 			} else {
 				meetbot.SendInfo(update.Message.Chat.ID)
 			}
-		case <-ch:
+		case <-out:
 			err = meetbot.CalcForWeek()
 			if err != nil {
 				for _, chat := range meetbot.Chats {
@@ -108,7 +112,6 @@ func main() {
 				}
 			} else {
 				meetbot.NotifyAll()
-				go timer.SetTimer(ch, meetbot.NotifyTime)
 			}
 		}
 	}

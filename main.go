@@ -98,15 +98,6 @@ func main() {
 			} else {
 				meetbot.SendInfo(update.Message.Chat.ID)
 			}
-		case <-out:
-			err = meetbot.CalcForWeek()
-			if err != nil {
-				for _, chat := range meetbot.Chats {
-					meetbot.SendMessage(err.Error(), chat.ID)
-				}
-			} else {
-				meetbot.NotifyAll()
-			}
 		}
 	}
 }

@@ -338,7 +338,7 @@ func (bot *MeetingBot) SendMessage(msg string, chatID int64) {
 	))
 }
 
-func SetAlarm(Hours, Minutes int, out chan struct{}) {
+func (b *MeetingBot) SetAlarm(Hours, Minutes int, out chan struct{}) {
 	hh, mm, ss := time.Now().Clock()
 	var next time.Time
 	if (hh*3600 + mm*60 + ss) > (Hours*3600 + Minutes*60) {
@@ -356,6 +356,14 @@ LOOP:
 		case <-ch:
 			out <- struct{}{}
 			fmt.Println("occured")
+			err := b.CalcForWeek()
+			if err != nil {
+				for _, chat := range b.Chats {
+					b.SendMessage(err.Error(), chat.ID)
+				}
+			} else {
+				b.NotifyAll()
+			}
 			go timer.SetTimer(ch, time.Hour*24)
 		case <-out:
 			fmt.Println("removed")

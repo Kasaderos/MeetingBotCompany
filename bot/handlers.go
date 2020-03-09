@@ -21,7 +21,6 @@ func (bot *MeetingBot) MeetHandler(msg *tgbotapi.Message) {
 	bot.SendButtons(msg.Chat.ID)
 }
 func (bot *MeetingBot) Default(typeOfMeet string, chatID int64) {
-	bot.AddChat(chatID)
 	if typeOfMeet == "daily_scrum_meeting" {
 		m := bot.FindMin()
 		bot.SendMeet(m, chatID)

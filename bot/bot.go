@@ -141,7 +141,6 @@ func (b *MeetingBot) CalcForWeek() error {
 func (b *MeetingBot) NotifyAll() {
 	b.cmu.RLock()
 	for id, _ := range b.Chats {
-		fmt.Println("occured5")
 		b.Default("daily_scrum_meeting", id)
 		b.SendButtons(id)
 	}
@@ -383,19 +382,16 @@ LOOP:
 	for {
 		select {
 		case <-ch:
-			fmt.Println("occured")
 			err := b.CalcForWeek()
-			fmt.Println("occured2")
 			if err != nil {
-				fmt.Println("occured3")
 				b.cmu.RLock()
 				for id, _ := range b.Chats {
 					b.SendMessage(err.Error(), id)
 				}
 				b.cmu.RUnlock()
+			} else {
+				b.NotifyAll()
 			}
-			fmt.Println("occured4")
-			b.NotifyAll()
 			go timer.SetTimer(ch, time.Hour*24)
 		case <-out:
 			fmt.Println("removed")

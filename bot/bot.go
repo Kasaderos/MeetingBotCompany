@@ -347,6 +347,7 @@ func SetAlarm(Hours, Minutes int, out chan struct{}) {
 	} else {
 		next = time.Now().Add(time.Second * time.Duration((Hours-hh)*3600+(Minutes-mm)*60-ss))
 	}
+	fmt.Println(next.String())
 	ch := make(chan struct{})
 	go timer.SetTimer(ch, time.Now().Sub(next))
 LOOP:
@@ -354,8 +355,10 @@ LOOP:
 		select {
 		case <-ch:
 			out <- struct{}{}
+			fmt.Println("occured")
 			go timer.SetTimer(ch, time.Hour*24)
 		case <-out:
+			fmt.Println("removed")
 			break LOOP
 		}
 	}

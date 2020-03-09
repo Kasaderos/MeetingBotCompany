@@ -56,10 +56,9 @@ func main() {
 	if err != nil {
 		panic(fmt.Errorf(err.Error()))
 	}
-	keyboard := tgbotapi.NewKeyboardButtonRow(
-		tgbotapi.NewKeyboardButton(`/easy`),
-		tgbotapi.NewKeyboardButton(`/hard`))
-
+	// keyboard := tgbotapi.NewKeyboardButtonRow(
+	// tgbotapi.NewKeyboardButton(`/easy`),
+	// tgbotapi.NewKeyboardButton(`/hard`))
 	out := make(chan struct{})
 	for {
 		select {
@@ -75,10 +74,9 @@ func main() {
 					"/reshedule_TypeOfMeet_hh:mm-hh:mm",
 					"/will_be",
 				), update.Message.Chat.ID)
-			} else if strings.HasPrefix(cmd, "ss") {
-				msg := tgbotapi.NewMessage(update.Message.Chat.ID, `SeeYa!`)
-				msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(keyboard)
-				meetbot.Bot.Send(msg)
+				// } else if strings.HasPrefix(cmd, "ss") {
+				// 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, `SeeYa!`)
+				// 	msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(keyboard)
 			} else if strings.HasPrefix(cmd, "will_not_be_") { //will_not_be_typeMeet_I'm lazy
 				msg := strings.Split(cmd, "_")
 				if len(msg) < 5 {

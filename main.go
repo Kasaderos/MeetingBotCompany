@@ -118,14 +118,19 @@ func main() {
 				switch meetbot.GetState(update.Message.Chat.ID) {
 				case 12:
 					meetbot.WillNotBe("daily scrum meeting", text, update.Message.Chat)
+					meetbot.ChangeState(0, update.Message.Chat.ID)
 				case 22:
 					meetbot.WillNotBe("sprint planing", text, update.Message.Chat)
+					meetbot.ChangeState(0, update.Message.Chat.ID)
 				case 32:
 					meetbot.WillNotBe("retrospective", text, update.Message.Chat)
+					meetbot.ChangeState(0, update.Message.Chat.ID)
 				case 13:
 					meetbot.Reshedule("daily scrum meeting", text, update.Message.Chat)
+					meetbot.ChangeState(0, update.Message.Chat.ID)
 				case 23:
 					meetbot.Reshedule("sprint planing", text, update.Message.Chat)
+					meetbot.ChangeState(0, update.Message.Chat.ID)
 				case 33:
 					meetbot.Reshedule("retrospective", text, update.Message.Chat)
 				default:

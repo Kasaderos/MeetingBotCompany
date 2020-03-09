@@ -66,12 +66,12 @@ func (bot *MeetingBot) Reshedule(typeOfMeet, interval string, chat *tgbotapi.Cha
 	if typeOfMeet == "daily scrum meeting" {
 		m := bot.FindMin()
 		m = bot.Recalc(typeOfMeet, interval, m, chat.ID)
-		bot.SendMeet(m, chat.ID)
+		bot.NotifyMeetingAll(m)
 	} else {
 		m := bot.FindMeetByType(typeOfMeet)
 		if m != nil {
 			m = bot.Recalc(typeOfMeet, interval, m, chat.ID)
-			bot.SendMeet(m, chat.ID)
+			bot.NotifyMeetingAll(m)
 		} else {
 			bot.SendMessage("can't find meet", chat.ID)
 		}

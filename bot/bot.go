@@ -141,6 +141,15 @@ func (b *MeetingBot) NotifyAll() {
 	}
 	b.cmu.RUnlock()
 }
+
+func (b *MeetingBot) NotifyMeetingAll(m *Meeting) {
+	b.cmu.RLock()
+	for id, _ := range b.Chats {
+		b.SendMeet(m, id)
+	}
+	b.cmu.RUnlock()
+}
+
 func (b *MeetingBot) SendButtons(chatID int64) {
 	b.Bot.Send(tgbotapi.NewMessage(
 		chatID,
